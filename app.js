@@ -7,29 +7,13 @@ var express     = require("express"),
     User        = require("./models/user"),
     seedDB      = require("./seeds")
     
-    
-seedDB()
 
 // Creates the yelp_camp DB if not already there
 mongoose.connect("mongodb://localhost/yelp_camp")
 app.use(bodyParser.urlencoded({extended: true}))
 app.set("view engine", "ejs")
+seedDB()
 
-
-Campground.create(
-    // {
-    //     name: "Granite Hill", 
-    //     image: "https://farm9.staticflickr.com/8314/7968774876_11eafbfbb7.jpg",
-    //     description: "This is a huge granite hill, no bathrooms.  No water.  Beautiful granite!"
-    // }, (err, campground) => {
-    //     if (err) {
-    //         console.log(err)
-    //     } else {
-    //         console.log("NEWLY CREATED CAMPGROUND: ")
-    //         console.log(campground)
-    //     }
-    // }
-)
 
 app.get("/", (req, res) => {
     res.render("landing")
@@ -72,8 +56,7 @@ app.get("/campgrounds/new", (req, res) => {
 // SHOW - show details about one campground
 // *** THIS MUST BE AFTER OTHER /CAMPGROUNDS ROUTES!!!
 app.get("/campgrounds/:id", (req, res) => {
-    // this takes two arguments, the id and callback
-    Campground.findById(req.params.id, (err, campground) => {
+    Campground.findById(req.params.id).populate("comments").exec((err, campground) => {
         if (err) {
             console.log(err)
         } else {
