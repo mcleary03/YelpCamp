@@ -76,6 +76,29 @@ app.get("/campgrounds/:id/comments/new", (req, res) => {
     })
 })
 
+app.post("/campgrounds/:id/comments", (req, res) => {
+    // lookup campground by id
+    Campground.findById(req.params.id, (err, campground) => {
+        if (err) {
+            console.log(err)
+            res.redirect("/campgrounds")
+        } else {
+            Comment.create(req.body.comment, (err, comment) => {
+                if (err) {
+                    console.log(err)
+                } else {
+                    campground.comments.push(comment)
+                    campground.save()
+                    res.redirect("/campgrounds/" + campground._id)
+                }
+            })
+        }
+    })
+    // create new comment
+    // connect new comment to campground
+    // redirect back to campground show page
+})
+
 
 app.listen(process.env.PORT, process.env.IP, () => {
     console.log("The YelpCamp Server Has Started!")
