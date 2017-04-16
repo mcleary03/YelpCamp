@@ -12,6 +12,8 @@ var express     = require("express"),
 mongoose.connect("mongodb://localhost/yelp_camp")
 app.use(bodyParser.urlencoded({extended: true}))
 app.set("view engine", "ejs")
+// tells app to look inside current directory for /public
+app.use(express.static(__dirname + "/public"))
 seedDB()
 
 
