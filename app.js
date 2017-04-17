@@ -9,6 +9,10 @@ var express       = require("express"),
     User          = require("./models/user"),
     seedDB        = require("./seeds")
     
+var commentRoutes    = require("./routes/comments"),
+    campgroundRoutes = require("./routes/campgrounds"),
+    indexRoutes       = require("./routes/index")
+    
 
 // Creates the yelp_camp DB if not already there
 mongoose.connect("mongodb://localhost/yelp_camp")
@@ -37,139 +41,11 @@ app.use((req, res, next) => {
     next()
 })
 
-
-app.get("/", (req, res) => {
-    res.render("landing")
-})
-
-// INDEX - show all campgrounds
-app.get("/campgrounds", (req, res) => {
-    // Get all campgrounds from DB
-    Campground.find({}, (err, campgrounds) => {
-        if (err) {
-            console.log(err)
-        } else {
-            res.render("campgrounds/index", { campgrounds })
-        }
-    })
-})
-
-// CREATE - add new campground to DB
-app.post("/campgrounds", (req, res) => {
-    var name = req.body.name
-    var image = req.body.image
-    var description = req.body.description
-    var newCampground = { name, image, description }
-    // Create a new campground and save to DB
-    Campground.create(newCampground, (err, newlyCreated) => {
-        if (err) {
-            console.log(err)
-        } else {
-            // Redirect back to campgrounds page
-            res.redirect("/campgrounds")
-        }
-    })
-})
-
-// NEW - show form to create new campground
-app.get("/campgrounds/new", (req, res) => {
-    res.render("campgrounds/new")
-})
-
-// SHOW - show details about one campground
-// *** THIS MUST BE AFTER OTHER /CAMPGROUNDS ROUTES!!!
-app.get("/campgrounds/:id", (req, res) => {
-    Campground.findById(req.params.id).populate("comments").exec((err, campground) => {
-        if (err) {
-            console.log(err)
-        } else {
-            res.render("campgrounds/show", {campground})
-        }
-    })
-})
-
-// COMMENTS ROUTES
-
-app.get("/campgrounds/:id/comments/new", isLoggedIn, (req, res) => {
-    Campground.findById(req.params.id, (err, campground) => {
-        if (err) {
-            console.log(err)
-        } else {
-            res.render("comments/new", { campground })
-        }
-    })
-})
-
-app.post("/campgrounds/:id/comments", isLoggedIn, (req, res) => {
-    // lookup campground by id
-    Campground.findById(req.params.id, (err, campground) => {
-        if (err) {
-            console.log(err)
-            res.redirect("/campgrounds")
-        } else {
-            Comment.create(req.body.comment, (err, comment) => {
-                if (err) {
-                    console.log(err)
-                } else {
-                    campground.comments.push(comment)
-                    campground.save()
-                    res.redirect("/campgrounds/" + campground._id)
-                }
-            })
-        }
-    })
-    // create new comment
-    // connect new comment to campground
-    // redirect back to campground show page
-})
-
-// AUTH ROUTES
-app.get("/register", (req, res) => {
-    res.render("register")
-})
-
-// handle sign up logic
-app.post("/register", (req, res) => {
-    var newUser = new User( { username: req.body.username } )
-    // this is provided by passport-local-mongoose
-    // we register user, if successful, logs them in
-    User.register(newUser, req.body.password, (err, user) => {
-        if (err) {
-            console.log(err)
-            return res.render("register")
-        }
-        passport.authenticate("local")(req, res, () => {
-            res.redirect("/campgrounds")
-        })
-    })
-})
-
-app.get("/login", (req, res) => {
-    res.render("login")
-})
-// handle login logic
-// app.post(route, middleware, callback)
-app.post("/login", passport.authenticate("local",
-    {
-        successRedirect: "/campgrounds",
-        failureRedirect: "/login"
-    }), (req, res) => {
-    
-})
-
-// logout logic
-app.get("/logout", (req, res) => {
-    req.logout()
-    res.redirect("/campgrounds")
-})
-
-// middleware to prevent users access to routes that require login
-function isLoggedIn(req, res, next) {
-    if (req.isAuthenticated()) {
-        return next()
-    }
-    res.redirect("/login")
-}
+// this sets "/campgrounds" to automatically be the beginning of 
+//  routes in get and post requests, as well as use the route here
+app.use("/campgrounds", campgroundRoutes)
+app.use("/campgrounds/:id/comments", commentRoutes)
+app.use(indexRoutes)
 
 
 app.listen(process.env.PORT, process.env.IP, () => {
