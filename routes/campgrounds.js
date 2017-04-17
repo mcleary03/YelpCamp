@@ -15,24 +15,28 @@ router.get("/", (req, res) => {
 })
 
 // CREATE - add new campground to DB
-router.post("/", (req, res) => {
+router.post("/", isLoggedIn, (req, res) => {
     var name = req.body.name
     var image = req.body.image
     var description = req.body.description
-    var newCampground = { name, image, description }
+    var author = {
+        id: req.user._id,
+        username: req.user.username
+    }
+    var newCampground = { name, image, description, author }
     // Create a new campground and save to DB
     Campground.create(newCampground, (err, newlyCreated) => {
         if (err) {
             console.log(err)
         } else {
             // Redirect back to campgrounds page
-            res.redirect("/")
+            res.redirect("/campgrounds")
         }
     })
 })
 
 // NEW - show form to create new campground
-router.get("/new", (req, res) => {
+router.get("/new", isLoggedIn, (req, res) => {
     res.render("campgrounds/new")
 })
 
@@ -43,9 +47,17 @@ router.get("/:id", (req, res) => {
         if (err) {
             console.log(err)
         } else {
-            res.render("campgrounds/show", {campground})
+            res.render("campgrounds/show", { campground })
         }
     })
 })
+
+// middleware to prevent users access to routes that require login
+function isLoggedIn(req, res, next) {
+    if (req.isAuthenticated()) {
+        return next()
+    }
+    res.redirect("/login")
+}
 
 module.exports = router
