@@ -135,6 +135,19 @@ app.post("/register", (req, res) => {
     })
 })
 
+app.get("/login", (req, res) => {
+    res.render("login")
+})
+// handle login logic
+// app.post(route, middleware, callback)
+app.post("/login", passport.authenticate("local",
+    {
+        successRedirect: "/campgrounds",
+        failureRedirect: "/login"
+    }), (req, res) => {
+    
+})
+
 
 app.listen(process.env.PORT, process.env.IP, () => {
     console.log("The YelpCamp Server Has Started!")
