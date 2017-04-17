@@ -82,7 +82,8 @@ app.get("/campgrounds/:id", (req, res) => {
 })
 
 // COMMENTS ROUTES
-app.get("/campgrounds/:id/comments/new", (req, res) => {
+
+app.get("/campgrounds/:id/comments/new", isLoggedIn, (req, res) => {
     Campground.findById(req.params.id, (err, campground) => {
         if (err) {
             console.log(err)
@@ -92,7 +93,7 @@ app.get("/campgrounds/:id/comments/new", (req, res) => {
     })
 })
 
-app.post("/campgrounds/:id/comments", (req, res) => {
+app.post("/campgrounds/:id/comments", isLoggedIn, (req, res) => {
     // lookup campground by id
     Campground.findById(req.params.id, (err, campground) => {
         if (err) {
@@ -124,6 +125,7 @@ app.get("/register", (req, res) => {
 app.post("/register", (req, res) => {
     var newUser = new User( { username: req.body.username } )
     // this is provided by passport-local-mongoose
+    // we register user, if successful, logs them in
     User.register(newUser, req.body.password, (err, user) => {
         if (err) {
             console.log(err)
@@ -147,6 +149,20 @@ app.post("/login", passport.authenticate("local",
     }), (req, res) => {
     
 })
+
+// logout logic
+app.get("/logout", (req, res) => {
+    req.logout()
+    res.redirect("/campgrounds")
+})
+
+// middleware to prevent users access to routes that require login
+function isLoggedIn(req, res, next) {
+    if (req.isAuthenticated()) {
+        return next()
+    }
+    res.redirect("/login")
+}
 
 
 app.listen(process.env.PORT, process.env.IP, () => {
