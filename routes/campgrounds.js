@@ -52,6 +52,38 @@ router.get("/:id", (req, res) => {
     })
 })
 
+// EDIT ROUTE
+router.get("/:id/edit", (req, res) => {
+    Campground.findById(req.params.id, (err, campground) => {
+        if (err) {
+            res.redirect("/campgrounds")
+        } else {      
+            res.render("campgrounds/edit", { campground })
+        }
+    })
+})
+
+router.put("/:id", (req, res) => {
+    Campground.findByIdAndUpdate(req.params.id, req.body.campground, (err, campground) => {
+        if (err) {
+            res.redirect("/campgrounds")
+        } else {
+            res.redirect("/campgrounds/" + req.params.id)
+        }
+    })
+})
+
+// DESTROY ROUTE
+router.delete("/:id", (req, res) => {
+    Campground.findByIdAndRemove(req.params.id, (err) => {
+        if (err) {
+            res.redirect("/campgrounds")
+        } else {
+            res.redirect("/campgrounds")
+        }
+    })
+})
+
 // middleware to prevent users access to routes that require login
 function isLoggedIn(req, res, next) {
     if (req.isAuthenticated()) {

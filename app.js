@@ -1,17 +1,18 @@
-var express       = require("express"),
-    app           = express(),
-    bodyParser    = require("body-parser"),
-    mongoose      = require("mongoose"),
-    passport      = require("passport"),
-    LocalStrategy = require("passport-local"),
-    Campground    = require("./models/campground"),
-    Comment       = require("./models/comment"),
-    User          = require("./models/user"),
-    seedDB        = require("./seeds")
+var express        = require("express"),
+    app            = express(),
+    bodyParser     = require("body-parser"),
+    mongoose       = require("mongoose"),
+    passport       = require("passport"),
+    LocalStrategy  = require("passport-local"),
+    methodOverride = require("method-override"),
+    Campground     = require("./models/campground"),
+    Comment        = require("./models/comment"),
+    User           = require("./models/user"),
+    seedDB         = require("./seeds")
 // Requiring Routes  
-var commentRoutes    = require("./routes/comments"),
-    campgroundRoutes = require("./routes/campgrounds"),
-    indexRoutes       = require("./routes/index")
+var campgroundRoutes = require("./routes/campgrounds"),
+    commentRoutes    = require("./routes/comments"),
+    indexRoutes      = require("./routes/index")
     
 
 // Creates the yelp_camp DB if not already there
@@ -20,6 +21,8 @@ app.use(bodyParser.urlencoded({extended: true}))
 app.set("view engine", "ejs")
 // tells app to look inside current directory for /public
 app.use(express.static(__dirname + "/public"))
+// telling methodOverride to look for "_method"
+app.use(methodOverride("_method"))
 
 // seedDB() //seed the DB
 
