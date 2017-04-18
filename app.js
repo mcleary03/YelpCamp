@@ -39,7 +39,8 @@ passport.serializeUser(User.serializeUser())
 passport.deserializeUser(User.deserializeUser())
 
 // middleware to pass user info to routes
-//  by using `app.use` this will be run automatically on all routes
+//  by using `app.use` this will be run automatically on ALL routes
+//  Now all routes have access to `currentUser`
 app.use((req, res, next) => {
     res.locals.currentUser = req.user
     next()

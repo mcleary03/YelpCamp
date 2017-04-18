@@ -53,17 +53,14 @@ router.get("/:id", (req, res) => {
 })
 
 // EDIT ROUTE
-router.get("/:id/edit", (req, res) => {
+router.get("/:id/edit", checkCampgroundOwnership, (req, res) => {
     Campground.findById(req.params.id, (err, campground) => {
-        if (err) {
-            res.redirect("/campgrounds")
-        } else {      
-            res.render("campgrounds/edit", { campground })
-        }
+        res.render("campgrounds/edit", { campground })
     })
 })
 
-router.put("/:id", (req, res) => {
+// UPDATE ROUTE
+router.put("/:id", checkCampgroundOwnership, (req, res) => {
     Campground.findByIdAndUpdate(req.params.id, req.body.campground, (err, campground) => {
         if (err) {
             res.redirect("/campgrounds")
@@ -74,7 +71,7 @@ router.put("/:id", (req, res) => {
 })
 
 // DESTROY ROUTE
-router.delete("/:id", (req, res) => {
+router.delete("/:id", checkCampgroundOwnership, (req, res) => {
     Campground.findByIdAndRemove(req.params.id, (err) => {
         if (err) {
             res.redirect("/campgrounds")
@@ -90,6 +87,29 @@ function isLoggedIn(req, res, next) {
         return next()
     }
     res.redirect("/login")
+}
+
+function checkCampgroundOwnership(req, res, next) {
+    // is user logged in?
+    if (req.isAuthenticated()) {
+        Campground.findById(req.params.id, (err, campground) => {
+            if (err) {
+                res.redirect("/campgrounds")
+            } else {      
+                // does the user own the campground?
+                // .equals is built in to mongoose
+                //  cannot use === between object and string
+                if (campground.author.id.equals(req.user._id)) {
+                    next()
+                } else {
+                    // take user to previous page
+                    res.redirect("back")
+                }
+            }
+        })
+    } else {
+        res.redirect("back")
+    }
 }
 
 module.exports = router
