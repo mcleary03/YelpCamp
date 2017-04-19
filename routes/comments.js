@@ -4,7 +4,7 @@ var router  = express.Router({mergeParams: true})
 var Campground = require("../models/campground")
 var Comment = require("../models/comment")
 
-// Comments New
+// New Route
 router.get("/new", isLoggedIn, (req, res) => {
     Campground.findById(req.params.id, (err, campground) => {
         if (err) {
@@ -15,7 +15,7 @@ router.get("/new", isLoggedIn, (req, res) => {
     })
 })
 
-// Comments Create
+// Create Route
 router.post("/", isLoggedIn, (req, res) => {
     Campground.findById(req.params.id, (err, campground) => {
         if (err) {
@@ -39,6 +39,30 @@ router.post("/", isLoggedIn, (req, res) => {
         }
     })
 })
+
+// Edit Route
+router.get("/:comment_id/edit", (req, res) => {
+    Comment.findById(req.params.comment_id, (err, comment) => {
+        if (err) {
+            res.redirect("back")
+        } else {
+            res.render("comments/edit", { campground_id: req.params.id, comment })
+        }
+    })
+})
+
+// Update Route
+router.put("/:comment_id", (req, res) => {
+    Comment.findByIdAndUpdate(req.params.comment_id, req.body.comment, (err, comment) => {
+        if (err) {
+            res.redirect("back")
+        } else {
+            res.redirect("/campgrounds/" + req.params.id)
+        }
+    })
+})
+
+// Delete Route
 
 // middleware to prevent users access to routes that require login
 function isLoggedIn(req, res, next) {
