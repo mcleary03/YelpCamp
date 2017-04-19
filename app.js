@@ -38,7 +38,7 @@ passport.use(new LocalStrategy(User.authenticate()))
 passport.serializeUser(User.serializeUser())
 passport.deserializeUser(User.deserializeUser())
 
-// middleware to pass user info to routes
+// Middleware to pass user info to routes
 //  by using `app.use` this will be run automatically on ALL routes
 //  Now all routes have access to `currentUser`
 app.use((req, res, next) => {
@@ -46,7 +46,7 @@ app.use((req, res, next) => {
     next()
 })
 
-// this sets "/campgrounds" to automatically be the beginning of 
+// This sets "/campgrounds" to automatically be the beginning of 
 //  routes in get and post requests, as well as use the route here
 app.use("/campgrounds", campgroundRoutes)
 app.use("/campgrounds/:id/comments", commentRoutes)

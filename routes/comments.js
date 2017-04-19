@@ -62,7 +62,16 @@ router.put("/:comment_id", (req, res) => {
     })
 })
 
-// Delete Route
+// Destroy Route
+router.delete("/:comment_id", (req, res) => {
+    Comment.findByIdAndRemove(req.params.comment_id, (err, comment) => {
+        if (err) {
+            res.redirect("back")
+        } else {
+            res.redirect("/campgrounds/" + req.params.id)
+        }
+    })
+})
 
 // middleware to prevent users access to routes that require login
 function isLoggedIn(req, res, next) {
