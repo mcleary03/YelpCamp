@@ -41,7 +41,7 @@ router.post("/", isLoggedIn, (req, res) => {
 })
 
 // Edit Route
-router.get("/:comment_id/edit", (req, res) => {
+router.get("/:comment_id/edit", checkCommentOwnership, (req, res) => {
     Comment.findById(req.params.comment_id, (err, comment) => {
         if (err) {
             res.redirect("back")
@@ -52,7 +52,7 @@ router.get("/:comment_id/edit", (req, res) => {
 })
 
 // Update Route
-router.put("/:comment_id", (req, res) => {
+router.put("/:comment_id", checkCommentOwnership, (req, res) => {
     Comment.findByIdAndUpdate(req.params.comment_id, req.body.comment, (err, comment) => {
         if (err) {
             res.redirect("back")
@@ -63,7 +63,7 @@ router.put("/:comment_id", (req, res) => {
 })
 
 // Destroy Route
-router.delete("/:comment_id", (req, res) => {
+router.delete("/:comment_id", checkCommentOwnership, (req, res) => {
     Comment.findByIdAndRemove(req.params.comment_id, (err, comment) => {
         if (err) {
             res.redirect("back")
@@ -79,6 +79,29 @@ function isLoggedIn(req, res, next) {
         return next()
     }
     res.redirect("/login")
+}
+
+function checkCommentOwnership(req, res, next) {
+    // is user logged in?
+    if (req.isAuthenticated()) {
+        Comment.findById(req.params.comment_id, (err, comment) => {
+            if (err) {
+                res.redirect("/campgrounds")
+            } else {      
+                // does the user own the comment?
+                // `.equals` is built in to mongoose
+                //  cannot use === between object and string
+                if (comment.author.id.equals(req.user._id)) {
+                    next()
+                } else {
+                    // take user to previous page
+                    res.redirect("back")
+                }
+            }
+        })
+    } else {
+        res.redirect("back")
+    }
 }
 
 module.exports = router
