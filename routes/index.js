@@ -49,15 +49,9 @@ router.post("/login", passport.authenticate("local",
 // Logout Route
 router.get("/logout", (req, res) => {
     req.logout()
+    req.flash("success", "You are logged out")
     res.redirect("/campgrounds")
 })
 
-// middleware to prevent users access to routes that require login
-function isLoggedIn(req, res, next) {
-    if (req.isAuthenticated()) {
-        return next()
-    }
-    res.redirect("/login")
-}
 
 module.exports = router

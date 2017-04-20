@@ -2,6 +2,7 @@ var express        = require("express"),
     app            = express(),
     bodyParser     = require("body-parser"),
     mongoose       = require("mongoose"),
+    flash          = require("connect-flash"),
     passport       = require("passport"),
     LocalStrategy  = require("passport-local"),
     methodOverride = require("method-override"),
@@ -23,6 +24,8 @@ app.set("view engine", "ejs")
 app.use(express.static(__dirname + "/public"))
 // telling methodOverride to look for "_method"
 app.use(methodOverride("_method"))
+// flash must be above passport configuration
+app.use(flash())
 
 // seedDB() //seed the DB
 
@@ -40,9 +43,12 @@ passport.deserializeUser(User.deserializeUser())
 
 // Middleware to pass user info to routes
 //  by using `app.use` this will be run automatically on ALL routes
-//  Now all routes have access to `currentUser`
 app.use((req, res, next) => {
-    res.locals.currentUser = req.user
+    //  Now all routes have access to `currentUser`
+    res.locals.currentUser = req.user,
+    //  Pass flash messages to all routes ( displayed in header )
+    res.locals.error = req.flash('error') 
+    res.locals.success = req.flash('success') 
     next()
 })
 
