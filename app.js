@@ -17,7 +17,8 @@ var campgroundRoutes = require("./routes/campgrounds"),
     
 
 // Creates the yelp_camp DB if not already there
-mongoose.connect("mongodb://localhost/yelp_camp")
+// mongoose.connect("mongodb://localhost/yelp_camp")
+mongoose.connect("mongodb://mike:admin@ds157571.mlab.com:57571/yelp_camp")
 app.use(bodyParser.urlencoded({extended: true}))
 app.set("view engine", "ejs")
 // tells app to look inside current directory for /public
