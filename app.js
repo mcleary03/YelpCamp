@@ -17,10 +17,10 @@ var campgroundRoutes = require("./routes/campgrounds"),
     
 
 // Creates the yelp_camp DB if not already there
-//  DATABASEURL was made with shell command `export DATABASEURL=mongodb://localhost/yelp_camp
-//    This is for develpment only
+//  DATABASEURL was made with shell command: `export DATABASEURL=mongodb://localhost/yelp_camp`
+//    for develpment only
+//  For production, Heroku config variable set to: `DATABASEURL : mongodb://mike:admin@ds157571.mlab.com:57571/yelp_camp`
 mongoose.connect(process.env.DATABASEURL)
-// mongoose.connect("mongodb://mike:admin@ds157571.mlab.com:57571/yelp_camp")
 
 app.use(bodyParser.urlencoded({extended: true}))
 app.set("view engine", "ejs")
